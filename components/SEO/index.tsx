@@ -1,26 +1,26 @@
 import Head from "next/head";
 import { DefaultSeo } from "next-seo";
 
-export const baseUrl = "https://fabianschultz.com";
+export const baseUrl = "https://amerguj.com";
 
 export const defaultSEO = {
-  title: "Fabian Schultz",
+  title: "Amer Gujral",
   description: "Human",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: baseUrl,
-    site_name: "Fabian Schultz",
+    site_name: "Amer Gujral",
     images: [
       {
         url: `${baseUrl}/social.png`,
-        alt: "Fabian Schultz",
+        alt: "Amer Gujral",
       },
     ],
   },
   twitter: {
-    handle: "@fschultz_",
-    site: "@fschultz_",
+    handle: "@amerguj",
+    site: "@amerguj",
     cardType: "summary_large_image",
   },
 };
@@ -47,9 +47,9 @@ export function SEO({ seo }: { seo?: SEOProps }) {
       />
       <Head>
         <meta name="googlebot" content="index,follow" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
+        <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" sizes="any" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
         {seo.path ? (
           <link
             rel="canonical"
@@ -76,15 +76,15 @@ export function SEO({ seo }: { seo?: SEOProps }) {
                 gender: "male",
                 image: defaultSEO.openGraph.images[0].url,
                 sameAs: [
-                  "https://twitter.com/fschultz_",
-                  "https://www.linkedin.com/in/fabian-schultz",
+                  "https://x.com/amerguj",
+                  "https://www.linkedin.com/in/amerguj/",
                 ],
               },
             }),
           }}
         />
 
-        <meta name="author" content="Fabian Schultz" />
+        <meta name="author" content="Amer Gujral" />
         <meta
           name="theme-color"
           content="#DFDFDE"
@@ -95,11 +95,6 @@ export function SEO({ seo }: { seo?: SEOProps }) {
           content="#000"
           media="(prefers-color-scheme: dark)"
         />
-        <meta
-          name="google-site-verification"
-          content="Oh4RDwXU307Z8ZofFyLQcqmin4Zuv309dats9oWWeHU"
-        />
-        <link rel="me" href="https://mastodon.social/@fabians" />
         <link
           rel="alternate"
           type="application/rss+xml"
