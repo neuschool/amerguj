@@ -22,7 +22,7 @@ export const QUERY_PAGE_HOME = gql`
         }
       }
     }
-    posts(limit: 5) {
+    posts(limit: 5, order: publishedDate_DESC) {
       title
       slug
       publishedDate

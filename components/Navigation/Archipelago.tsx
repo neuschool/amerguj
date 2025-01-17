@@ -111,23 +111,6 @@ export default function Archipelago() {
                 <CameraIcon size={16} />
                 Photos
               </div>
-              <Badge border>Experimental</Badge>
-            </Command.Item>
-          </Command.Group>
-
-          <Command.Group heading="Portfolio">
-            <Command.Item onSelect={() => navigate("/work")}>
-              <div>
-                <CursorIcon size={16} />
-                Projects
-              </div>
-              <Badge border>Private</Badge>
-            </Command.Item>
-            <Command.Item onSelect={() => navigate("/patents")}>
-              <div>
-                <ShieldIcon size={16} />
-                Patents
-              </div>
             </Command.Item>
           </Command.Group>
 

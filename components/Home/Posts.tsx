@@ -11,6 +11,11 @@ export default function Posts() {
     return null;
   }
 
+  // Sort posts by publishedDate in descending order
+  const sortedPosts = [...posts].sort((a, b) => {
+    return new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime();
+  });
+
   return (
     <dl className="list-container">
       <dt className="list-title">
@@ -18,7 +23,7 @@ export default function Posts() {
       </dt>
       <dd className="list-content">
         <ul className="space-y-4">
-          {posts.map((post) => (
+          {sortedPosts.map((post) => (
             <li key={post.slug}>
               <Link
                 href={`/posts/${post.slug}`}

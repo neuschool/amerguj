@@ -23,8 +23,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/globe" className="link-fade">
-                  Globe
+                <Link href="/photos" className="link-fade">
+                  Photography
                 </Link>
               </li>
               <li>
