@@ -50,7 +50,7 @@ export default function Home({ intro }) {
       <Main>
         <Intro content={intro} />
         <Resume />
-        <Posts posts={data.posts} />
+        <Posts postCollection={data.postCollection} />
         <NowPlaying spotifyStatus={liveData?.spotifyStatus} loading={loading} />
         <NowReading books={data.books} />
       </Main>
@@ -68,7 +68,31 @@ export const getStaticProps: GetStaticProps = async () => {
   const cache = apolloClient.cache.extract();
 
   const data = apolloClient.readQuery({ query: QUERY_PAGE_HOME });
-  const intro = await serialize(data.siteSettings.intro);
+  console.log("Data from Apollo:", JSON.stringify(data, null, 2));
+  console.log("Site settings:", JSON.stringify(data?.siteSettings, null, 2));
+
+  // Convert Contentful rich text to markdown
+  const richTextContent = data.siteSettings.introNew.json;
+  const markdownContent = richTextContent.content
+    .map(node => {
+      if (node.nodeType === 'paragraph') {
+        const text = node.content.map(content => {
+          if (content.nodeType === 'text') {
+            return content.value;
+          } else if (content.nodeType === 'hyperlink') {
+            return `[${content.content[0].value}](${content.data.uri})`;
+          }
+          return '';
+        }).join('');
+        return text;
+      }
+      return '';
+    })
+    .filter(text => text)
+    .join('\n\n');
+
+  const intro = await serialize(markdownContent);
+  console.log("Serialized intro:", JSON.stringify(intro, null, 2));
 
   return {
     props: {

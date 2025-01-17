@@ -6,6 +6,7 @@ import { QUERY_PAGE_HOME } from "../../graphql/queries";
 import { PageHomeQueryQuery } from "../../graphql/types/types.generated";
 
 export default function Intro({ content }) {
+  console.log("Intro content:", content);
   const { data } = useQuery<PageHomeQueryQuery>(QUERY_PAGE_HOME);
 
   return (
@@ -23,7 +24,11 @@ export default function Intro({ content }) {
         </div>
       </dt>
       <dd className="list-content border-none pt-0">
-        <MDXRemote {...content} components={mdxComponents} />
+        {content ? (
+          <MDXRemote {...content} components={mdxComponents} />
+        ) : (
+          <p>Loading...</p>
+        )}
       </dd>
     </dl>
   );

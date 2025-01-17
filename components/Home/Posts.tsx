@@ -1,45 +1,32 @@
-import Link from "next/link";
-import { formatDate } from "../../lib/formatDate";
-import { useQuery } from "@apollo/client";
-import { QUERY_PAGE_HOME } from "../../graphql/queries";
+import { useQuery } from '@apollo/client';
+import Link from 'next/link';
+import { QUERY_PAGE_HOME } from '../../graphql/queries';
 
 export default function Posts() {
   const { data } = useQuery(QUERY_PAGE_HOME);
-  const posts = data?.posts || [];
 
-  if (!posts.length) {
+  if (!data?.postCollection?.items?.length) {
     return null;
   }
 
-  // Sort posts by publishedDate in descending order
-  const sortedPosts = [...posts].sort((a, b) => {
-    return new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime();
-  });
-
   return (
     <dl className="list-container">
-      <dt className="list-title">
-        <h3 className="text-neutral-500 dark:text-silver-dark">Latest Posts</h3>
+      <dt className="list-title border-t border-neutral-500/10 dark:border-neutral-900 pt-16 pb-2 leading-relaxed">
+        Writing
       </dt>
-      <dd className="list-content">
+      <dd className="list-content pt-8">
         <ul className="space-y-4">
-          {sortedPosts.map((post) => (
+          {data.postCollection.items.map((post) => (
             <li key={post.slug}>
-              <Link
-                href={`/posts/${post.slug}`}
-                className="block transition-colors hover:text-accent"
-              >
-                <time className="text-sm text-neutral-500">
-                  {post.publishedDate ? formatDate(post.publishedDate) : "No date"}
-                </time>
-                <h4 className="mt-1">{post.title}</h4>
+              <Link href={`/posts/${post.slug}`} className="link-fade">
+                {post.title}
               </Link>
             </li>
           ))}
         </ul>
         <div className="mt-8">
-          <Link href="/posts" className="text-accent hover:text-accent-dark">
-            View all posts →
+          <Link href="/posts" className="link-fade">
+            View all
           </Link>
         </div>
       </dd>

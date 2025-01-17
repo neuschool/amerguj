@@ -10,12 +10,42 @@ export const typeDefs = gql`
     photos(limit: Int): [Photo]!
     playlists(limit: Int): [Playlist]!
     post(slug: String!): Post
-    posts(limit: Int): [PostWithoutBody]!
+    postCollection(limit: Int, order: String): PostCollection!
     places: [Place]!
     siteSettings: SiteSettings!
     spotifyStatus: SpotifyStatus!
     spotifyPlaylist(id: String!): SpotifyPlaylist!
     resumeEntries: [ResumeEntry!]!
+  }
+
+  type PostCollection {
+    items: [Post!]!
+  }
+
+  type SiteSettingsCollection {
+    items: [SiteSettings!]!
+  }
+
+  type SiteSettingsIntroNew {
+    json: JSON!
+    links: SiteSettingsIntroNewLinks!
+  }
+
+  type SiteSettingsIntroNewLinks {
+    assets: SiteSettingsIntroNewAssets!
+  }
+
+  type SiteSettingsIntroNewAssets {
+    block: [Asset!]!
+  }
+
+  type Asset {
+    sys: Sys!
+    url: String
+    title: String
+    width: Int
+    height: Int
+    description: String
   }
 
   enum CollectionType {
@@ -37,11 +67,10 @@ export const typeDefs = gql`
   }
 
   type Song {
-    title: String
+    name: String
     artist: String
-    album: String
     albumImageUrl: String
-    spotifyUrl: String
+    url: String
   }
 
   type Playlist {
@@ -67,15 +96,7 @@ export const typeDefs = gql`
     coverUrl: String
     coverAlt: String
     tags: [String]
-    body: Freeform!
-  }
-
-  type PostWithoutBody {
-    title: String!
-    slug: String!
-    publishedDate: String!
-    coverUrl: String
-    metaDescription: String
+    body: Freeform
   }
 
   type Place {
@@ -97,72 +118,17 @@ export const typeDefs = gql`
 
   type SiteSettings {
     siteTitle: String!
-    intro: String!
-    flags: [Flag]
+    introNew: SiteSettingsIntroNew!
     metaDescription: String!
-    avatar: Asset
-  }
-
-  type Flag {
-    key: String!
-    value: String!
-  }
-
-  interface Entry {
-    sys: Sys!
-    contentfulMetadata: ContentfulMetadata!
-  }
-
-  type ContentfulMetadata {
-    tags: [ContentfulTag]!
-  }
-
-  type ContentfulTag {
-    id: String
-    name: String
-  }
-
-  type Sys {
-    id: String!
-    spaceId: String!
-    environmentId: String!
-    publishedAt: String
-    firstPublishedAt: String
-    publishedVersion: Int
-  }
-
-  type Asset {
-    sys: Sys!
-    contentfulMetadata: ContentfulMetadata!
-    title: String
-    description: String
-    contentType: String
-    fileName: String
-    size: Int
-    url(transform: ImageTransformOptions): String
-    width: Int
-    height: Int
-  }
-
-  input ImageTransformOptions {
-    width: Int
-    height: Int
-    quality: Int
-    cornerRadius: Int
-    resizeStrategy: String
-    resizeFocus: String
-    backgroundColor: String
-    format: String
   }
 
   type Location {
-    lat: Float
-    lon: Float
+    lat: Float!
+    lng: Float!
   }
 
-  type ResumeEntry implements Entry {
+  type ResumeEntry {
     sys: Sys!
-    contentfulMetadata: ContentfulMetadata!
     startYear: Int!
     endYear: Int
     jobTitle: String!
@@ -170,5 +136,11 @@ export const typeDefs = gql`
     companyUrl: String!
     location: String!
     priority: Int
+  }
+
+  type Sys {
+    id: String!
+    spaceId: String!
+    environmentId: String!
   }
 `;

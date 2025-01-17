@@ -239,7 +239,44 @@ export type SiteSettingsSharedFragment = { __typename?: 'SiteSettings', siteTitl
 export type PageHomeQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PageHomeQueryQuery = { __typename?: 'Query', siteSettings: { __typename?: 'SiteSettings', intro: string, siteTitle: string, metaDescription: string }, posts: Array<{ __typename?: 'PostWithoutBody', publishedDate: string, title: string, slug: string } | null>, books: Array<{ __typename?: 'Book', title: string, author: string, url: string, coverUrl?: string | null } | null> };
+export type PageHomeQueryQuery = {
+  __typename?: 'Query';
+  siteSettings: {
+    __typename?: 'SiteSettings';
+    introNew: {
+      __typename?: 'SiteSettingsIntroNew';
+      json: any;
+      links: {
+        __typename?: 'SiteSettingsIntroNewLinks';
+        assets: {
+          __typename?: 'SiteSettingsIntroNewAssets';
+          block: Array<{
+            __typename?: 'Asset';
+            sys: {
+              __typename?: 'Sys';
+              id: string;
+            };
+            url?: string | null;
+            title?: string | null;
+            width?: number | null;
+            height?: number | null;
+            description?: string | null;
+          }>;
+        };
+      };
+    };
+    siteTitle: string;
+    metaDescription: string;
+  };
+  postCollection: {
+    __typename?: 'PostCollection';
+    items: Array<{
+      __typename?: 'Post';
+      title: string;
+      slug: string;
+    }>;
+  };
+};
 
 export type SpotifyStatusQueryQueryVariables = Exact<{ [key: string]: never; }>;
 

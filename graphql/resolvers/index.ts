@@ -18,7 +18,7 @@ export const resolvers = {
     photo: () => null,
     photos: () => [],
     playlists: () => [],
-    posts: async () => {
+    postCollection: async () => {
       try {
         const { data } = await contentfulClient.query({
           query: gql`
@@ -34,10 +34,10 @@ export const resolvers = {
             }
           `,
         });
-        return data.postCollection.items;
+        return data.postCollection;
       } catch (error) {
         console.error("Error fetching posts:", error);
-        return [];
+        return { items: [] };
       }
     },
     post: async (_, { slug }) => {
@@ -52,7 +52,8 @@ export const resolvers = {
                   publishedDate
                   metaDescription
                   body
-                  tags
+                  coverUrl
+                  coverAlt
                 }
               }
             }
@@ -74,7 +75,23 @@ export const resolvers = {
               siteSettingsCollection(limit: 1) {
                 items {
                   siteTitle
-                  intro
+                  introNew {
+                    json
+                    links {
+                      assets {
+                        block {
+                          sys {
+                            id
+                          }
+                          url
+                          title
+                          width
+                          height
+                          description
+                        }
+                      }
+                    }
+                  }
                   metaDescription
                 }
               }
@@ -82,10 +99,14 @@ export const resolvers = {
           `,
         });
 
+        console.log("Contentful response:", JSON.stringify(data, null, 2));
+
         const settings = data.siteSettingsCollection.items[0];
+        console.log("Settings object:", JSON.stringify(settings, null, 2));
+
         return {
           siteTitle: settings.siteTitle,
-          intro: settings.intro,
+          introNew: settings.introNew,
           metaDescription: settings.metaDescription,
           flags: []
         };
@@ -93,8 +114,8 @@ export const resolvers = {
         console.error("Error fetching site settings:", error);
         return {
           siteTitle: "Default Title",
-          intro: "Default Intro",
-          metaDescription: "Default Description",
+          introNew: "Default Intro",
+          metaDescription: "Amer Gujral's Website",
           flags: []
         };
       }

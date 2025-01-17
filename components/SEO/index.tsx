@@ -5,7 +5,7 @@ export const baseUrl = "https://amerguj.com";
 
 export const defaultSEO = {
   title: "Amer Gujral",
-  description: "Human",
+  description: "Amer Gujral's Website",
   openGraph: {
     type: "website",
     locale: "en_US",
