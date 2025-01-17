@@ -110,6 +110,52 @@ export const resolvers = {
       trackCount: 0,
       followerCount: 0,
       spotifyUrl: "#"
-    })
+    }),
+    resumeEntries: async () => {
+      try {
+        const { data } = await contentfulClient.query({
+          query: gql`
+            query GetResumeEntries {
+              resumeEntryCollection {
+                items {
+                  sys {
+                    id
+                  }
+                  startYear
+                  endYear
+                  jobTitle
+                  companyName
+                  companyUrl
+                  location
+                  priority
+                }
+              }
+            }
+          `,
+        });
+
+        if (!data?.resumeEntryCollection?.items) {
+          console.error('No resume entries found');
+          return [];
+        }
+
+        // Sort by year (descending) and then by priority (descending)
+        const entries = [...data.resumeEntryCollection.items];
+        entries.sort((a, b) => {
+          if (a.startYear !== b.startYear) {
+            return b.startYear - a.startYear;
+          }
+          // For same year, sort by priority (higher priority first)
+          const priorityA = a.priority || 0;
+          const priorityB = b.priority || 0;
+          return priorityB - priorityA;
+        });
+
+        return entries;
+      } catch (error) {
+        console.error('Error fetching resume entries:', error);
+        return [];
+      }
+    },
   }
 };

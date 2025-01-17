@@ -15,6 +15,7 @@ export const typeDefs = gql`
     siteSettings: SiteSettings!
     spotifyStatus: SpotifyStatus!
     spotifyPlaylist(id: String!): SpotifyPlaylist!
+    resumeEntries: [ResumeEntry!]!
   }
 
   enum CollectionType {
@@ -157,5 +158,17 @@ export const typeDefs = gql`
   type Location {
     lat: Float
     lon: Float
+  }
+
+  type ResumeEntry implements Entry {
+    sys: Sys!
+    contentfulMetadata: ContentfulMetadata!
+    startYear: Int!
+    endYear: Int
+    jobTitle: String!
+    companyName: String!
+    companyUrl: String!
+    location: String!
+    priority: Int
   }
 `;
