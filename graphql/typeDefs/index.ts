@@ -2,6 +2,7 @@ import { gql } from "@apollo/client";
 
 export const typeDefs = gql`
   scalar JSON
+  scalar Freeform
 
   type Query {
     books(limit: Int, collection: CollectionType): [Book]!
@@ -57,8 +58,6 @@ export const typeDefs = gql`
     fallbackColors: [String]
   }
 
-  scalar Freeform
-
   type Post {
     title: String!
     slug: String!
@@ -100,15 +99,13 @@ export const typeDefs = gql`
     intro: String!
     flags: [Flag]
     metaDescription: String!
-    avatar: Asset!
+    avatar: Asset
   }
 
   type Flag {
     key: String!
     value: String!
   }
-
-  # Contentful types from here on out! ---------------------------------------------
 
   interface Entry {
     sys: Sys!

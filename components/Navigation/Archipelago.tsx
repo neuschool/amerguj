@@ -18,6 +18,7 @@ import {
 import { CSSTransitionGroup } from "react-transition-group";
 import { Tooltip } from "../Tooltip";
 import Badge from "../Badge";
+import { YOUR_EMAIL, YOUR_TWITTER } from "./constants";
 
 enum TooltipState {
   HOME,
@@ -51,10 +52,8 @@ export default function Archipelago() {
   };
 
   useEffect(() => {
-    // Prefetch menu
     router.prefetch("/posts");
 
-    // Toggle the menu when ⌘K is pressed
     const down = (e) => {
       if (e.keyCode === 75 && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
@@ -133,14 +132,14 @@ export default function Archipelago() {
           </Command.Group>
 
           <Command.Group heading="Contact">
-            <Command.Item onSelect={() => navigate("//twitter.com/fschultz_")}>
+            <Command.Item onSelect={() => navigate(`//twitter.com/${YOUR_TWITTER}`)}>
               <div>
                 <TwitterIcon size={16} />
                 Twitter
               </div>
             </Command.Item>
             <Command.Item
-              onSelect={() => navigate("mailto:desk@fabianschultz.com")}
+              onSelect={() => navigate(`mailto:${YOUR_EMAIL}`)}
             >
               <div>
                 <EmailIcon size={16} />

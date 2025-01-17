@@ -5,7 +5,7 @@ import { Main } from "../../components/Layouts";
 import { SEO } from "../../components/SEO";
 import { initializeApollo } from "../../graphql/client";
 import { QUERY_POSTS } from "../../graphql/queries";
-import formatDate from "../../lib/formatDate";
+import { formatDate } from "../../lib/formatDate";
 
 export default function Posts({ posts }) {
   return (

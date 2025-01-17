@@ -1,0 +1,177 @@
+import { gql } from "@apollo/client";
+import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
+
+const contentfulClient = new ApolloClient({
+  ssrMode: true,
+  link: createHttpLink({
+    uri: `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/master`,
+    headers: {
+      Authorization: `Bearer ${process.env.CONTENTFUL_DELIVERY}`,
+    },
+  }),
+  cache: new InMemoryCache(),
+});
+
+async function fetchSiteSettings() {
+  try {
+    const { data } = await contentfulClient.query({
+      query: gql`
+        query GetSiteSettings {
+          siteSettingsCollection(limit: 1) {
+            items {
+              siteTitle
+              intro
+              metaDescription
+              avatar {
+                url
+                sys {
+                  id
+                  spaceId
+                  environmentId
+                }
+              }
+            }
+          }
+        }
+      `,
+    });
+
+    const settings = data.siteSettingsCollection.items[0];
+    return {
+      siteTitle: settings.siteTitle,
+      intro: settings.intro,
+      metaDescription: settings.metaDescription,
+      flags: [],
+      avatar: {
+        sys: {
+          ...settings.avatar.sys,
+          publishedAt: null,
+          firstPublishedAt: null,
+          publishedVersion: null
+        },
+        contentfulMetadata: { tags: [] },
+        url: settings.avatar.url
+      }
+    };
+  } catch (error) {
+    console.error("Error fetching site settings:", error);
+    return {
+      siteTitle: "My Website",
+      intro: "Welcome",
+      metaDescription: "My personal website",
+      flags: [],
+      avatar: {
+        sys: {
+          id: "dummy-id",
+          spaceId: process.env.CONTENTFUL_SPACE_ID || "dummy-space",
+          environmentId: "master",
+          publishedAt: null,
+          firstPublishedAt: null,
+          publishedVersion: null
+        },
+        contentfulMetadata: { tags: [] },
+        url: "https://via.placeholder.com/150"
+      }
+    };
+  }
+}
+
+async function fetchPosts() {
+  try {
+    const { data } = await contentfulClient.query({
+      query: gql`
+        query GetPosts {
+          postCollection {
+            items {
+              sys {
+                id
+              }
+              title
+              slug
+              publishedDate
+              metaDescription
+              tags
+              body {
+                json
+              }
+            }
+          }
+        }
+      `,
+    });
+
+    return data.postCollection.items.map(post => ({
+      ...post,
+      body: post.body?.json,
+    }));
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return [];
+  }
+}
+
+async function fetchPostBySlug(slug) {
+  try {
+    const { data } = await contentfulClient.query({
+      query: gql`
+        query GetPost($slug: String!) {
+          postCollection(where: { slug: $slug }, limit: 1) {
+            items {
+              title
+              slug
+              publishedDate
+              metaDescription
+              tags
+              body {
+                json
+              }
+            }
+          }
+        }
+      `,
+      variables: { slug },
+    });
+
+    const post = data.postCollection.items[0];
+    return post ? {
+      ...post,
+      body: post.body?.json,
+    } : null;
+  } catch (error) {
+    console.error("Error fetching post:", error);
+    return null;
+  }
+}
+
+export const resolvers = {
+  Query: {
+    books: () => [],
+    photo: () => null,
+    photos: () => [],
+    playlists: () => [],
+    posts: async () => {
+      const posts = await fetchPosts();
+      return posts;
+    },
+    post: async (_, { slug }) => {
+      const post = await fetchPostBySlug(slug);
+      return post;
+    },
+    places: () => [],
+    siteSettings: async () => {
+      const settings = await fetchSiteSettings();
+      if (!settings) {
+        throw new Error("Site settings not found");
+      }
+      return settings;
+    },
+    spotifyStatus: () => ({ isPlaying: false }),
+    spotifyPlaylist: () => ({
+      name: "Mock Playlist",
+      coverUrl: "https://via.placeholder.com/150",
+      trackCount: 0,
+      followerCount: 0,
+      spotifyUrl: "#"
+    })
+  }
+};

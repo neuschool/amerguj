@@ -50,9 +50,6 @@ export const QUERY_POST = gql`
 
   query PostQuery($slug: String!) {
     siteSettings {
-      avatar {
-        url
-      }
       ...SiteSettingsShared
     }
     post(slug: $slug) {

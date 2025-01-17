@@ -1,0 +1,128 @@
+import { gql } from "@apollo/client";
+
+export const typeDefs = gql`
+  scalar JSON
+  scalar Freeform
+
+  type Query {
+    books(limit: Int, collection: CollectionType): [Book]!
+    photo(id: String!): Photo
+    photos(limit: Int): [Photo]!
+    playlists(limit: Int): [Playlist]!
+    post(slug: String!): Post
+    posts(limit: Int): [PostWithoutBody]!
+    places: [Place]!
+    siteSettings: SiteSettings!
+    spotifyStatus: SpotifyStatus!
+    spotifyPlaylist(id: String!): SpotifyPlaylist!
+  }
+
+  enum CollectionType {
+    READING
+  }
+
+  type SiteSettings {
+    siteTitle: String!
+    intro: String!
+    metaDescription: String!
+    flags: [Flag]
+    avatar: Asset!
+  }
+
+  type Flag {
+    key: String!
+    value: String!
+  }
+
+  type Asset {
+    sys: Sys!
+    contentfulMetadata: ContentfulMetadata!
+    url: String
+  }
+
+  type Sys {
+    id: String!
+    spaceId: String!
+    environmentId: String!
+    publishedAt: String
+    firstPublishedAt: String
+    publishedVersion: Int
+  }
+
+  type ContentfulMetadata {
+    tags: [ContentfulTag]!
+  }
+
+  type ContentfulTag {
+    id: String
+    name: String
+  }
+
+  type Post {
+    title: String!
+    slug: String!
+    publishedDate: String!
+    metaDescription: String
+    body: JSON!
+    tags: [String]
+  }
+
+  type PostWithoutBody {
+    title: String!
+    slug: String!
+    publishedDate: String!
+    metaDescription: String
+  }
+
+  type SpotifyStatus {
+    timestamp: String
+    isPlaying: Boolean!
+    song: Song
+  }
+
+  type Song {
+    title: String
+    artist: String
+    album: String
+    albumImageUrl: String
+    spotifyUrl: String
+  }
+
+  type SpotifyPlaylist {
+    name: String!
+    coverUrl: String!
+    trackCount: Int!
+    followerCount: Int!
+    spotifyUrl: String!
+  }
+
+  type Photo {
+    id: String!
+    url: String!
+    width: Int!
+    height: Int!
+    description: String
+    tags: [String]
+    location: Location
+  }
+
+  type Location {
+    lat: Float
+    lon: Float
+  }
+
+  type Playlist {
+    title: String!
+    coverUrl: String!
+    spotifyUrl: String!
+  }
+
+  type Book {
+    title: String!
+    author: String!
+    readingDate: String
+    url: String!
+    coverUrl: String
+    fallbackColors: [String]
+  }
+`;

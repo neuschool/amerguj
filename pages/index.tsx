@@ -1,6 +1,5 @@
 import Intro from "../components/Home/Intro";
 import Resume from "../components/Home/Resume";
-import Writing from "../components/Home/Writing";
 import { Main } from "../components/Layouts";
 import { SEO } from "../components/SEO";
 import { initializeApollo } from "../graphql/client";
@@ -52,7 +51,6 @@ export default function Home({ intro }) {
         <Intro content={intro} />
         <Resume />
         <Posts posts={data.posts} />
-        <Writing />
         <NowPlaying spotifyStatus={liveData?.spotifyStatus} loading={loading} />
         <NowReading books={data.books} />
       </Main>

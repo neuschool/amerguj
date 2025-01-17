@@ -5,7 +5,7 @@ export const baseUrl = "https://fabianschultz.com";
 
 export const defaultSEO = {
   title: "Fabian Schultz",
-  description: "Product Designer",
+  description: "Human",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -71,8 +71,8 @@ export function SEO({ seo }: { seo?: SEOProps }) {
                 "@type": "Person",
                 name: defaultSEO.title,
                 url: baseUrl,
-                jobTitle: "Product Designer",
-                alumniOf: "University of Applied Sciences Potsdam",
+                jobTitle: "Human",
+                alumniOf: "University of Southern California",
                 gender: "male",
                 image: defaultSEO.openGraph.images[0].url,
                 sameAs: [

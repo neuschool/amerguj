@@ -1,0 +1,47 @@
+import { gql } from "@apollo/client";
+
+export const SHARED_FRAGMENTS = gql`
+  fragment SiteSettingsShared on SiteSettings {
+    siteTitle
+    metaDescription
+  }
+`;
+
+export const QUERY_PAGE_HOME = gql`
+  ${SHARED_FRAGMENTS}
+  query PageHomeQuery {
+    siteSettings {
+      intro
+      ...SiteSettingsShared
+      avatar {
+        url
+        sys {
+          id
+          spaceId
+          environmentId
+        }
+      }
+    }
+    posts(limit: 5) {
+      publishedDate
+      title
+      slug
+    }
+  }
+`;
+
+export const QUERY_SPOTIFY_STATUS = gql`
+  query SpotifyStatusQuery {
+    spotifyStatus {
+      timestamp
+      isPlaying
+      song {
+        albumImageUrl
+        artist
+        title
+        spotifyUrl
+        album
+      }
+    }
+  }
+`;

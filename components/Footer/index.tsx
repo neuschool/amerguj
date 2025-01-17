@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { GithubIcon } from "../Icons";
 
 export default function Footer() {
   return (
@@ -28,6 +27,11 @@ export default function Footer() {
                   Globe
                 </Link>
               </li>
+              <li>
+                <Link href="/colophon" className="link-fade">
+                  Colophon
+                </Link>
+              </li>
             </ul>
             <div className="flex gap-1.5 text-xs text-neutral-500 [font-variation-settings:'opsz'_12] dark:text-silver-dark">
               <svg
@@ -45,7 +49,7 @@ export default function Footer() {
                   clipRule="evenodd"
                 ></path>
               </svg>
-              Made in London, UK
+              Made in Germany
             </div>
           </div>
           <div className="flex h-full flex-col items-end justify-end sm:justify-between">
@@ -54,30 +58,7 @@ export default function Footer() {
               aria-hidden="true"
               role="img"
             >
-              Becoming is better than being.
-            </div>
-            <div className="flex gap-4">
-              <Link href="/colophon" className="link link-sm">
-                Colophon
-              </Link>
-              <a
-                className="link link-sm flex items-center gap-1.5"
-                href="//github.com/fabe/site"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <GithubIcon size={12} />
-                <span>
-                  fabe/site
-                  <span className="hidden font-mono text-neutral-500/[.5] dark:text-silver-dark/[.5] sm:inline">
-                    #
-                    {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(
-                      0,
-                      7,
-                    ) || "97540ec"}
-                  </span>
-                </span>
-              </a>
+              It's all a relative bilanz — a composition
             </div>
           </div>
         </div>

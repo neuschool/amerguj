@@ -1,40 +1,29 @@
-import { Book } from "../../graphql/types/types.generated";
-import MediaCard, { MediaCardImageRadius } from "../MediaCard";
+import Link from "next/link";
 
-interface NowReadingProps {
-  books: Book[];
-}
-
-export default function NowReading({ books }: NowReadingProps) {
-  if (!books.length) {
+export default function NowReading({ books = [] }) {
+  if (!books || books.length === 0) {
     return null;
   }
 
   return (
-    <dl className="list-container">
-      <dt className="list-title">
-        <h3 className="text-neutral-500 dark:text-silver-dark">Reading</h3>
-      </dt>
-
-      <dd className="list-content grid gap-4 sm:gap-6">
-        {books.map(({ title, author, coverUrl, url }) => (
-          <MediaCard
-            key={url}
-            title={title}
-            subtitle={author}
-            image={{
-              alt: title && author ? `${title} by ${author}` : "Book cover",
-              title: title && author ? `${title} by ${author}` : null,
-              src: coverUrl ? coverUrl : "",
-              width: 56,
-              height: 80,
-              radius: MediaCardImageRadius.Book,
-            }}
-            href={url}
-            hrefLabel="View on Literal"
-          />
+    <section>
+      <h3 className="mb-4 text-lg font-medium">Now Reading</h3>
+      <ul className="space-y-4">
+        {books.map((book) => (
+          <li key={book.url}>
+            <Link href={book.url} className="block">
+              <div className="group transition-colors duration-100">
+                <h4 className="mt-1 group-hover:text-accent">
+                  {book.title}
+                </h4>
+                <p className="text-sm text-neutral-500">
+                  by {book.author}
+                </p>
+              </div>
+            </Link>
+          </li>
         ))}
-      </dd>
-    </dl>
+      </ul>
+    </section>
   );
 }

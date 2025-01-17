@@ -1,0 +1,81 @@
+import { gql } from "@apollo/client";
+import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
+
+const contentfulClient = new ApolloClient({
+  ssrMode: true,
+  link: createHttpLink({
+    uri: `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/master`,
+    headers: {
+      Authorization: `Bearer ${process.env.CONTENTFUL_DELIVERY}`,
+    },
+  }),
+  cache: new InMemoryCache(),
+});
+
+export async function getSiteSettings() {
+  try {
+    const { data } = await contentfulClient.query({
+      query: gql`
+        query GetSiteSettings {
+          siteSettingsCollection(limit: 1) {
+            items {
+              siteTitle
+              intro
+              metaDescription
+              avatar {
+                url
+                sys {
+                  id
+                  spaceId
+                  environmentId
+                }
+              }
+            }
+          }
+        }
+      `,
+    });
+
+    console.log("Contentful response:", data);
+
+    const settings = data.siteSettingsCollection.items[0];
+    return {
+      siteTitle: settings.siteTitle,
+      intro: settings.intro,
+      metaDescription: settings.metaDescription,
+      flags: [],
+      avatar: {
+        ...settings.avatar,
+        contentfulMetadata: { tags: [] },
+        sys: {
+          ...settings.avatar.sys,
+          publishedAt: null,
+          firstPublishedAt: null,
+          publishedVersion: null
+        }
+      }
+    };
+  } catch (error) {
+    console.error("Error fetching from Contentful:", error);
+    return {
+      siteTitle: "My Website",
+      intro: "Welcome to my website",
+      metaDescription: "A personal website",
+      flags: [],
+      avatar: {
+        sys: {
+          id: "dummy-id",
+          spaceId: "dummy-space",
+          environmentId: "master",
+          publishedAt: null,
+          firstPublishedAt: null,
+          publishedVersion: null
+        },
+        contentfulMetadata: {
+          tags: []
+        },
+        url: "https://via.placeholder.com/150"
+      }
+    };
+  }
+}

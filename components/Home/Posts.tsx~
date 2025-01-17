@@ -1,0 +1,34 @@
+import Link from "next/link";
+import { formatDate } from "../../lib/formatDate";
+
+export default function Posts({ posts: initialPosts = [] }) {
+  if (!initialPosts || !initialPosts.length) {
+    return null;
+  }
+
+  return (
+    <section>
+      <h3 className="mb-4 text-lg font-medium">Latest Posts</h3>
+      <ul className="space-y-4">
+        {initialPosts.map((post) => (
+          <li key={post.slug}>
+            <Link
+              href={`/posts/${post.slug}`}
+              className="block transition-colors hover:text-accent"
+            >
+              <time className="text-sm text-neutral-500">
+                {formatDate(post.publishedDate)}
+              </time>
+              <h4 className="mt-1">{post.title}</h4>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-8">
+        <Link href="/posts" className="text-accent hover:text-accent-dark">
+          View all posts →
+        </Link>
+      </div>
+    </section>
+  );
+}

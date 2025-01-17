@@ -1,44 +1,41 @@
 import Link from "next/link";
-import formatDate from "../../lib/formatDate";
-import { FeedIcon, NoteIcon } from "../Icons";
+import { formatDate } from "../../lib/formatDate";
+import { useQuery } from "@apollo/client";
+import { QUERY_PAGE_HOME } from "../../graphql/queries";
 
-export default function Posts({ posts }) {
+export default function Posts() {
+  const { data } = useQuery(QUERY_PAGE_HOME);
+  const posts = data?.posts || [];
+
+  if (!posts.length) {
+    return null;
+  }
+
   return (
     <dl className="list-container">
       <dt className="list-title">
-        <h3 className="text-neutral-500 dark:text-silver-dark">Posts</h3>
+        <h3 className="text-neutral-500 dark:text-silver-dark">Latest Posts</h3>
       </dt>
       <dd className="list-content">
-        {posts.map((post) => (
-          <div key={post.slug} className="pb-2 last-of-type:pb-0">
-            <div>
+        <ul className="space-y-4">
+          {posts.map((post) => (
+            <li key={post.slug}>
               <Link
                 href={`/posts/${post.slug}`}
-                className="link inline-flex items-center gap-1"
+                className="block transition-colors hover:text-accent"
               >
-                <div className="opacity-20 dark:opacity-30">
-                  <NoteIcon size={16} />
-                </div>
-                {post.title}
+                <time className="text-sm text-neutral-500">
+                  {post.publishedDate ? formatDate(post.publishedDate) : "No date"}
+                </time>
+                <h4 className="mt-1">{post.title}</h4>
               </Link>
-            </div>
-            <time className="time hidden" dateTime={post.publishedDate}>
-              {formatDate(post.publishedDate, true)}
-            </time>
-          </div>
-        ))}
-        <div className="mt-2 flex items-center gap-3">
-          <Link href="/posts" className="link link-sm inline-flex items-center">
-            View all
+            </li>
+          ))}
+        </ul>
+        <div className="mt-8">
+          <Link href="/posts" className="text-accent hover:text-accent-dark">
+            View all posts →
           </Link>
-          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-          <a
-            href="/posts/atom"
-            className="link link-sm inline-flex items-center gap-1"
-          >
-            <FeedIcon size={12} />
-            RSS
-          </a>
         </div>
       </dd>
     </dl>
