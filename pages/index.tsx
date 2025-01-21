@@ -13,6 +13,7 @@ import { documentToReactComponents } from "@contentful/rich-text-react-renderer"
 import { Document, BLOCKS, INLINES } from "@contentful/rich-text-types";
 import Posts from "../components/Home/Posts";
 import RecentlyPlayed from '../components/RecentlyPlayed';
+import { gql } from '@apollo/client';
 
 interface HomeProps {
   initialApolloState: any;
@@ -42,6 +43,50 @@ interface PageHomeQuery {
     }>;
   };
 }
+
+const QUERY = gql`
+  query GetHomePageData {
+    siteSettingsCollection(limit: 1) {
+      items {
+        siteTitle
+        metaDescription
+        introNew {
+          json
+        }
+        avatar {
+          url
+          width
+          height
+        }
+      }
+    }
+  }
+`;
+
+export const getStaticProps: GetStaticProps = async () => {
+  const apolloClient = initializeApollo();
+
+  try {
+    await apolloClient.query({
+      query: QUERY,
+    });
+
+    return {
+      props: {
+        initialApolloState: apolloClient.cache.extract(),
+      },
+      revalidate: 1,
+    };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return {
+      props: {
+        initialApolloState: {},
+      },
+      revalidate: 1,
+    };
+  }
+};
 
 export default function Home({ initialApolloState }: HomeProps) {
   const { data } = useQuery<PageHomeQuery>(QUERY_PAGE_HOME);
@@ -98,39 +143,3 @@ export default function Home({ initialApolloState }: HomeProps) {
     </Main>
   );
 }
-
-export const getStaticProps: GetStaticProps = async () => {
-  try {
-    const apolloClient = initializeApollo();
-
-    const [homeData] = await Promise.all([
-      apolloClient.query<PageHomeQuery>({
-        query: QUERY_PAGE_HOME,
-      }),
-      apolloClient.query({
-        query: QUERY_RESUME,
-      })
-    ]);
-
-    console.log("Raw query result:", JSON.stringify(homeData.data, null, 2));
-
-    if (!homeData.data || !homeData.data.siteSettingsCollection?.items?.[0]) {
-      console.error("Settings not found in the response");
-      return {
-        notFound: true
-      };
-    }
-
-    return {
-      props: {
-        initialApolloState: apolloClient.cache.extract(),
-      },
-      revalidate: 60, // Revalidate every minute
-    };
-  } catch (error) {
-    console.error("Error in getStaticProps:", error);
-    return {
-      notFound: true
-    };
-  }
-};

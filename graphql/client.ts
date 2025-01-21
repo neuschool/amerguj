@@ -20,13 +20,13 @@ function createIsomorphLink() {
   const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN || process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN;
 
   if (!spaceId || !accessToken) {
-    throw new Error('Contentful environment variables are not set');
+    throw new Error('Missing required Contentful credentials');
   }
 
   return new HttpLink({
-    uri: `https://graphql.contentful.com/content/v1/spaces/${spaceId}`,
+    uri: `https://graphql.contentful.com/content/v1/spaces/${spaceId}/environments/master`,
     headers: {
-      authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 }
@@ -35,21 +35,46 @@ function createApolloClient() {
   return new ApolloClient({
     ssrMode: typeof window === "undefined",
     link: createIsomorphLink(),
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+      typePolicies: {
+        Query: {
+          fields: {
+            posts: {
+              merge(existing = [], incoming: any[]) {
+                return [...incoming];
+              },
+            },
+            photos: {
+              merge(existing = [], incoming: any[]) {
+                return [...incoming];
+              },
+            },
+          },
+        },
+      },
+    }),
+    defaultOptions: {
+      query: {
+        fetchPolicy: 'no-cache',
+      },
+      watchQuery: {
+        fetchPolicy: 'no-cache',
+      },
+    },
   });
 }
 
 export function initializeApollo(initialState: any = null) {
   const _apolloClient = apolloClient ?? createApolloClient();
 
-  // If your page has Next.js data fetching methods that use Apollo Client, the initial state
-  // gets hydrated here
+  // If your page has Next.js data fetching methods that use Apollo Client,
+  // the initial state gets hydrated here
   if (initialState) {
     // Get existing cache, loaded during client side data fetching
     const existingCache = _apolloClient.extract();
 
-    // Restore the cache using the data passed from
-    // getStaticProps/getServerSideProps combined with the existing cached data
+    // Restore the cache using the data passed from getStaticProps/getServerSideProps
+    // combined with the existing cached data
     _apolloClient.cache.restore({ ...existingCache, ...initialState });
   }
 
