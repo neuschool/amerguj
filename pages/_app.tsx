@@ -1,52 +1,43 @@
 import "../styles/globals.css";
-import type { AppProps as NextAppProps } from "next/app";
+import type { AppProps } from "next/app";
 import { ApolloCache, ApolloProvider } from "@apollo/client";
 import { useApollo } from "../graphql/client";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
-import localFont from "next/font/local";
-
-const sansFont = localFont({
-  src: "../public/inter.roman.var.woff2",
-  weight: "100 900",
-  display: "swap",
-});
+import { SessionProvider } from 'next-auth/react';
+import Head from 'next/head';
 
 const Archipelago = dynamic(
   () => import("../components/Navigation/Archipelago")
 );
 
-type AppProps<P = any> = {
-  pageProps: P;
-} & Omit<NextAppProps<P>, "pageProps">;
-
 interface CustomPageProps {
-  initialApolloState?: ApolloCache<any>;
+  initialApolloState?: any;
+  session?: any;
 }
 
-export default function MyApp({
-  Component,
-  pageProps,
-}: AppProps<CustomPageProps>) {
+type CustomAppProps = AppProps<CustomPageProps>;
+
+export default function MyApp({ Component, pageProps }: CustomAppProps) {
   const apolloClient = useApollo(pageProps.initialApolloState);
 
   return (
-    <>
+    <SessionProvider session={pageProps.session}>
+      <Head>
+        <link rel="preconnect" href="https://rsms.me/" />
+        <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+      </Head>
       <ApolloProvider client={apolloClient}>
-        <style jsx global>
-          {`
-            :root {
-              --sans-font: ${sansFont.style.fontFamily};
-            }
-          `}
-        </style>
+        <div>
+          <Suspense>
+            <Component {...pageProps} />
+          </Suspense>
 
-        <Component {...pageProps} />
-
-        <Suspense>
-          <Archipelago />
-        </Suspense>
+          <Suspense>
+            <Archipelago />
+          </Suspense>
+        </div>
       </ApolloProvider>
-    </>
+    </SessionProvider>
   );
 }

@@ -11,26 +11,19 @@ export default function Posts() {
   }
 
   return (
-    <dl className="list-container section-border">
-      <dt className="list-title">
-        <div className="text-base text-neutral-500">Writing</div>
-      </dt>
-      <dd className="list-content">
-        <div className="space-y-4">
-          {data.postCollection.items.slice(0, 5).map((post) => (
-            <div key={post.slug} className="text-base">
-              <Link href={`/posts/${post.slug}`} className="link">
-                {post.title}
-              </Link>
-            </div>
-          ))}
-        </div>
-        <div className="mt-8">
-          <Link href="/posts" className="link">
-            View all
+    <div className="space-y-4">
+      {data.postCollection.items.slice(0, 5).map((post) => (
+        <div key={post.slug} className="text-base">
+          <Link href={`/posts/${post.slug}`} className="link">
+            {post.title}
           </Link>
         </div>
-      </dd>
-    </dl>
+      ))}
+      <div className="mt-8">
+        <Link href="/posts" className="link">
+          View all
+        </Link>
+      </div>
+    </div>
   );
 }

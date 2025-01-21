@@ -12,6 +12,7 @@ import NowPlaying from "../components/Home/NowPlaying";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { Document, BLOCKS, INLINES } from "@contentful/rich-text-types";
 import Posts from "../components/Home/Posts";
+import RecentlyPlayed from '../components/RecentlyPlayed';
 
 interface HomeProps {
   initialApolloState: any;
@@ -84,7 +85,15 @@ export default function Home({ initialApolloState }: HomeProps) {
           </dd>
         </dl>
         <Resume />
-        <Posts />
+        <dl className="list-container section-border">
+          <dt className="list-title">
+            <div className="text-neutral-500">Writing</div>
+          </dt>
+          <dd className="list-content">
+            <Posts />
+          </dd>
+        </dl>
+        <RecentlyPlayed />
       </div>
     </Main>
   );
