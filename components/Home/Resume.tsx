@@ -19,7 +19,7 @@ export default function Resume() {
           {data.resumeEntryCollection.items.map((entry) => (
             <div key={`date-${entry.sys.id}`} className="text-base text-neutral-500 flex items-start h-24 pt-1">
               {entry.startYear} <span className="mx-2">{entry.endYear ? entry.endYear : (
-                <span className="inline-flex items-center rounded-full bg-neutral-200 px-2 py-0.5 text-sm text-neutral-600">
+                <span className="inline-flex items-center rounded-full bg-neutral-200 dark:bg-neutral-800 px-2 py-0.5 text-sm text-neutral-600 dark:text-neutral-400">
                   Present
                 </span>
               )}</span>
@@ -34,7 +34,7 @@ export default function Resume() {
               <div className="flex flex-col gap-0.5">
                 <div className="sm:hidden text-neutral-500 mb-1">
                   {entry.startYear} <span className="mx-2">{entry.endYear ? entry.endYear : (
-                    <span className="inline-flex items-center rounded-full bg-neutral-200 px-2 py-0.5 text-sm text-neutral-600">
+                    <span className="inline-flex items-center rounded-full bg-neutral-200 dark:bg-neutral-800 px-2 py-0.5 text-sm text-neutral-600 dark:text-neutral-400">
                       Present
                     </span>
                   )}</span>

@@ -8,27 +8,29 @@ export default function RecentlyPlayed() {
     refreshInterval: 86400000, // 24 hours
   });
 
+  if (!data?.tracks?.length) {
+    return null;
+  }
+
   return (
-    <dl className="list-container">
+    <dl className="list-container section-border">
       <dt className="list-title">
         <div className="text-neutral-500">Listening</div>
       </dt>
       <dd className="list-content">
-        <div className="space-y-3">
-          {data?.tracks?.map((track: any) => (
-            <div key={track.url} className="flex justify-end items-center">
+        <div className="space-y-4">
+          {data.tracks.map((track: any) => (
+            <div key={track.url} className="text-base">
               <Link
                 href={track.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center space-x-1 text-neutral-800 dark:text-silver hover:text-neutral-500 dark:hover:text-neutral-400"
+                className="group no-underline"
               >
-                <span>
-                  <span className="underline decoration-1 underline-offset-4">{track.title}</span>
-                  <span className="inline-block transform transition-transform group-hover:translate-x-0.5 mx-1">↗</span>
-                  <span className="text-neutral-500">by {track.artist}</span>
-                </span>
+                <span className="link">{track.title}</span>
+                <span className="text-neutral-500 no-underline"> ↗</span>
               </Link>
+              <span className="text-neutral-500"> by {track.artist}</span>
             </div>
           ))}
         </div>
