@@ -94,12 +94,6 @@ export default function Archipelago() {
                 Posts
               </div>
             </Command.Item>
-            <Command.Item onSelect={() => navigate("/globe")}>
-              <div>
-                <GlobeIcon size={16} />
-                Globe
-              </div>
-            </Command.Item>
             <Command.Item onSelect={() => navigate("/photos")}>
               <div>
                 <CameraIcon size={16} />

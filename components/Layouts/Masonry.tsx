@@ -48,9 +48,9 @@ const Masonry = ({ photos }: MasonryProps) => {
           <div key={i} className="flex flex-1 gap-2 flex-col">
             {column.map((photo: Photo) => (
               <Link
-                key={photo.sys.id}
-                href={{ pathname: "/photos", query: { id: photo.sys.id } }}
-                as={`/photos/${photo.sys.id}`}
+                key={photo.id}
+                href={{ pathname: "/photos", query: { id: photo.id } }}
+                as={`/photos/${photo.id}`}
                 passHref
                 shallow
                 scroll={false}

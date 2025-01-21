@@ -139,6 +139,25 @@ export const QUERY_POSTS = gql`
   }
 `;
 
+export const QUERY_POSTS_FEED = gql`
+  query PostsFeed {
+    siteSettingsCollection(limit: 1) {
+      items {
+        siteTitle
+        metaDescription
+      }
+    }
+    postCollection(limit: 5) {
+      items {
+        title
+        slug
+        publishedDate
+        metaDescription
+      }
+    }
+  }
+`;
+
 export const QUERY_SPOTIFY_STATUS = gql`
   query SpotifyStatus {
     spotifyStatus {
@@ -172,6 +191,58 @@ export const QUERY_ALL_PHOTOS = gql`
           url
           width
           height
+        }
+      }
+    }
+  }
+`;
+
+export const QUERY_PLACES = gql`
+  query Places {
+    placeCollection {
+      items {
+        sys {
+          id
+        }
+        name
+        location {
+          latitude
+          longitude
+        }
+      }
+    }
+  }
+`;
+
+export const QUERY_PHOTO = gql`
+  query Photo($id: String!) {
+    photo: photoCollection(where: { sys: { id: $id } }, limit: 1) {
+      items {
+        sys {
+          id
+        }
+        location
+        image {
+          sys {
+            id
+          }
+          title
+          description
+          url
+          width
+          height
+        }
+      }
+    }
+  }
+`;
+
+export const QUERY_PHOTO_IDS = gql`
+  query PhotoIds {
+    photoCollection {
+      items {
+        sys {
+          id
         }
       }
     }

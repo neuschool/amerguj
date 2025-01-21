@@ -32,18 +32,23 @@ export default function Photo(props) {
 export const getStaticPaths: GetStaticPaths = async () => {
   const apolloClient = initializeApollo();
 
-  await apolloClient.query({
+  const { data } = await apolloClient.query({
     query: QUERY_PHOTO_IDS,
   });
 
-  const data = apolloClient.readQuery({
-    query: QUERY_PHOTO_IDS,
-  });
+  if (!data?.photoCollection?.items) {
+    return {
+      paths: [],
+      fallback: false,
+    };
+  }
 
-  const photos = data.photos.map((photo) => ({ params: { ...photo } }));
+  const paths = data.photoCollection.items.map((photo) => ({
+    params: { id: photo.sys.id },
+  }));
 
   return {
-    paths: photos,
+    paths,
     fallback: false,
   };
 };
@@ -51,23 +56,23 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const apolloClient = initializeApollo();
 
-  await apolloClient.query({
+  const { data } = await apolloClient.query({
     query: QUERY_PHOTO,
     variables: {
       id: params.id,
     },
   });
 
-  const data = apolloClient.readQuery({
-    query: QUERY_PHOTO,
-    variables: {
-      id: params.id,
-    },
-  });
+  if (!data?.photo?.items?.[0]) {
+    return {
+      notFound: true,
+    };
+  }
 
   return {
     props: {
-      photo: { ...data.photo },
+      photo: data.photo.items[0],
     },
+    revalidate: 60,
   };
 };

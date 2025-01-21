@@ -220,12 +220,15 @@ export async function getPhoto(
     exif: photo.exif,
     height: photo.asset.height,
     location: photo.location,
-    url: photo.asset.url.replace(
-      "downloads.ctfassets.net",
-      "images.ctfassets.net",
-    ),
+    url: photo.asset.url,
     tags: photo.tags,
     width: photo.asset.width,
+    image: {
+      url: photo.asset.url,
+      width: photo.asset.width,
+      height: photo.asset.height,
+      title: photo.asset.title
+    }
   };
 }
 

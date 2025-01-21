@@ -38,7 +38,7 @@ export default function Photos({ photos }: PhotosProps) {
         onDismiss={() => router.push("/photos", undefined, { scroll: false })}
       >
         <LightboxPhoto
-          photo={photos?.find((photo) => photo.sys.id === router.query.id)}
+          photo={photos?.find((photo) => photo.id === router.query.id)}
         />
       </Lightbox>
 
