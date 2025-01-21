@@ -1,31 +1,32 @@
 import { useQuery } from '@apollo/client';
 import Link from 'next/link';
-import { QUERY_PAGE_HOME } from '../../graphql/queries';
+import { QUERY_POSTS } from '../../graphql/queries';
+import { LinkExternal } from '../Links';
 
 export default function Posts() {
-  const { data } = useQuery(QUERY_PAGE_HOME);
+  const { data, loading, error } = useQuery(QUERY_POSTS);
 
   if (!data?.postCollection?.items?.length) {
     return null;
   }
 
   return (
-    <dl className="list-container">
-      <dt className="list-title border-t border-neutral-500/10 dark:border-neutral-900 pt-16 pb-2 leading-relaxed">
-        Writing
+    <dl className="list-container section-border">
+      <dt className="list-title">
+        <div className="text-base text-neutral-500">Writing</div>
       </dt>
-      <dd className="list-content pt-8">
-        <ul className="space-y-4">
-          {data.postCollection.items.map((post) => (
-            <li key={post.slug}>
-              <Link href={`/posts/${post.slug}`} className="link-fade">
+      <dd className="list-content">
+        <div className="space-y-4">
+          {data.postCollection.items.slice(0, 5).map((post) => (
+            <div key={post.slug} className="text-base">
+              <Link href={`/posts/${post.slug}`} className="link">
                 {post.title}
               </Link>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
         <div className="mt-8">
-          <Link href="/posts" className="link-fade">
+          <Link href="/posts" className="link">
             View all
           </Link>
         </div>

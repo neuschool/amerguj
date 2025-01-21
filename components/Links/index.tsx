@@ -13,7 +13,6 @@ export function LinkExternal({ href, children }) {
       rel="noopener noreferrer"
     >
       {children}
-
       <ExternalIcon size={16} />
     </a>
   );
@@ -46,7 +45,6 @@ export function LinkShare({ title, url, children }) {
       <Tooltip open={tooltipOpen}>Link copied!</Tooltip>
       <button className="link-share" onClick={onClick}>
         <ShareIcon size={16} />
-
         {children}
       </button>
     </div>

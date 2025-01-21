@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Photo } from "../../graphql/types/types.generated";
 import Image from "next/image";
 import contentfulLoader from "../../lib/contentfulLoader";
-import ExifSummary from "../ExifSummary";
 import Link from "next/link";
 
 interface MasonryProps {
@@ -20,7 +19,7 @@ const Masonry = ({ photos }: MasonryProps) => {
   const [numColumns, setNumColumns] = useState<number>(3);
 
   const updateColumns = () => {
-    setNumColumns(getNumColumns(innerWidth));
+    setNumColumns(getNumColumns(window.innerWidth));
   };
 
   useEffect(() => {
@@ -49,40 +48,32 @@ const Masonry = ({ photos }: MasonryProps) => {
           <div key={i} className="flex flex-1 gap-2 flex-col">
             {column.map((photo: Photo) => (
               <Link
-                key={photo.id}
-                href={{ pathname: "/photos", query: { id: photo.id } }}
-                as={`/photos/${photo.id}`}
+                key={photo.sys.id}
+                href={{ pathname: "/photos", query: { id: photo.sys.id } }}
+                as={`/photos/${photo.sys.id}`}
                 passHref
                 shallow
                 scroll={false}
               >
                 <div
-                  key={photo.url}
                   className="group relative flex overflow-hidden"
-                  style={{ aspectRatio: `${photo.width} / ${photo.height}` }}
+                  style={{ aspectRatio: `${photo.image.width} / ${photo.image.height}` }}
                 >
                   <Image
-                    src={photo.url}
-                    alt={photo.description}
-                    sizes="512px"
+                    src={photo.image.url}
+                    alt={photo.location || ""}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                     className="w-full h-auto bg-gray-200 dark:bg-neutral-900"
-                    width={photo.width}
-                    height={photo.height}
+                    width={photo.image.width}
+                    height={photo.image.height}
                     quality={90}
-                    loader={(props) =>
-                      contentfulLoader({
-                        ...props,
-                      })
-                    }
+                    loader={contentfulLoader}
                   />
-                  <div className="absolute bottom-0 left-0 right-0 top-0 flex flex-col justify-end gap-1 bg-gradient-to-b from-transparent via-transparent via-50% to-black/60 px-4 pb-5 pt-0 text-white group-hover:opacity-100 opacity-0 transition-opacity">
-                    <div className="line-clamp-2 text-base">
-                      {photo.description}
+                  {photo.location && (
+                    <div className="absolute bottom-0 left-0 right-0 top-0 flex flex-col justify-end gap-1 bg-gradient-to-b from-transparent via-transparent via-50% to-black/60 px-4 pb-5 pt-0 text-white group-hover:opacity-100 opacity-0 transition-opacity">
+                      <div className="text-sm">{photo.location}</div>
                     </div>
-                    <div className="text-sm opacity-75">
-                      <ExifSummary exif={photo.exif} />
-                    </div>
-                  </div>
+                  )}
                 </div>
               </Link>
             ))}

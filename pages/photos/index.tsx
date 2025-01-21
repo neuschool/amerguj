@@ -5,20 +5,24 @@ import { initializeApollo } from "../../graphql/client";
 import { QUERY_ALL_PHOTOS } from "../../graphql/queries";
 import Footer from "../../components/Footer";
 import Masonry from "../../components/Layouts/Masonry";
-import { Container } from "../../components/Layouts";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import Lightbox from "../../components/Lightbox";
 import LightboxPhoto from "../../components/Lightbox/Photo";
-import Badge from "../../components/Badge";
+import { Photo } from "../../graphql/types/types.generated";
 
 const Dialog = dynamic(() => import("../../components/Dialog"), {
   loading: () => null,
   ssr: false,
 });
 
-export default function Photos({ photos }) {
+interface PhotosProps {
+  photos: Photo[];
+}
+
+export default function Photos({ photos }: PhotosProps) {
   const router = useRouter();
+  console.log('Component photos:', JSON.stringify(photos, null, 2));
 
   return (
     <>
@@ -29,21 +33,12 @@ export default function Photos({ photos }) {
         }}
       />
 
-      <Container>
-        <div className="flex items-center justify-between pb-6 sm:pb-12 gap-2">
-          <h1 className="text-2xl text-neutral-800 [font-variation-settings:'opsz'_32,_'wght'_500] dark:text-white sm:text-3xl">
-            Photos
-          </h1>
-          <Badge>Work in Progress</Badge>
-        </div>
-      </Container>
-
       <Lightbox
         isOpen={!!router.query.id}
         onDismiss={() => router.push("/photos", undefined, { scroll: false })}
       >
         <LightboxPhoto
-          photo={photos?.find((photo) => photo.id === router.query.id)}
+          photo={photos?.find((photo) => photo.sys.id === router.query.id)}
         />
       </Lightbox>
 
@@ -60,20 +55,60 @@ export default function Photos({ photos }) {
   );
 }
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export async function getStaticProps() {
   const apolloClient = initializeApollo();
+  try {
+    console.log('Fetching photos from Contentful...');
+    const { data, error } = await apolloClient.query({
+      query: QUERY_ALL_PHOTOS,
+    });
 
-  await apolloClient.query({
-    query: QUERY_ALL_PHOTOS,
-  });
+    console.log('GraphQL response:', JSON.stringify(data, null, 2));
 
-  const data = apolloClient.readQuery({
-    query: QUERY_ALL_PHOTOS,
-  });
+    if (error) {
+      console.error('GraphQL error:', error);
+      return {
+        props: {
+          photos: [],
+        },
+      };
+    }
 
-  return {
-    props: {
-      photos: data.photos,
-    },
-  };
-};
+    if (!data) {
+      console.error('No data returned from GraphQL query');
+      return {
+        props: {
+          photos: [],
+        },
+      };
+    }
+
+    if (!data.photoCollection?.items) {
+      console.error('No photos found in response. Available fields:', Object.keys(data));
+      return {
+        props: {
+          photos: [],
+        },
+      };
+    }
+
+    const photos = data.photoCollection.items;
+    console.log('Found photos:', photos.length);
+    console.log('First photo (if any):', JSON.stringify(photos[0], null, 2));
+
+    return {
+      props: {
+        photos,
+      },
+      revalidate: 60,
+    };
+  } catch (error) {
+    console.error('Error in getStaticProps:', error instanceof Error ? error.message : error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
+    return {
+      props: {
+        photos: [],
+      },
+    };
+  }
+}

@@ -5,6 +5,7 @@ interface BadgeProps {
   isPrivate?: boolean;
   children: JSX.Element | string;
   border?: boolean;
+  className?: string;
 }
 
 export default function Badge({
@@ -12,26 +13,13 @@ export default function Badge({
   isPrivate = false,
   children,
   border = false,
+  className = '',
 }: BadgeProps) {
   return (
     <div
-      className={`badge ${
-        border && `border border-gray-900/5 bg-transparent dark:border-white/10`
-      }  ${
-        isPrivate &&
-        `dark:bg-orange-500 bg-orange-200 dark:text-white text-orange-800`
-      }`}
+      className={`inline-flex items-center rounded-full bg-neutral-200 px-2 py-0.5 text-sm text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300 ${className}`}
     >
-      {isPrivate ? <LockIcon size={12}></LockIcon> : null}
-      {isLive ? (
-        <div
-          className="relative flex h-2 w-2 items-center justify-center"
-          aria-hidden
-        >
-          <div className="opacity-85 absolute inline-flex h-full w-full animate-ping rounded-full bg-red-600 dark:bg-rose-400 dark:opacity-30"></div>
-          <div className="relative inline-flex h-1 w-1 rounded-full bg-red-600 dark:bg-rose-400"></div>
-        </div>
-      ) : null}
+      {isPrivate && <LockIcon size={12} />}
       {children}
     </div>
   );

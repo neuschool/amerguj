@@ -4,100 +4,124 @@ import { Main } from "../components/Layouts";
 import { SEO } from "../components/SEO";
 import { initializeApollo } from "../graphql/client";
 import type { GetStaticProps } from "next";
-import { QUERY_PAGE_HOME, QUERY_SPOTIFY_STATUS } from "../graphql/queries";
-import {
-  PageHomeQueryQuery,
-  SpotifyStatusQueryQuery,
-} from "../graphql/types/types.generated";
+import { QUERY_PAGE_HOME, QUERY_SPOTIFY_STATUS, QUERY_RESUME } from "../graphql/queries";
+import type { SpotifyStatusQueryQuery } from "../graphql/types/types.generated";
 import { useQuery } from "@apollo/client";
-import NowReading from "../components/Home/NowReading";
 import { useEffect } from "react";
 import NowPlaying from "../components/Home/NowPlaying";
-import { serialize } from "next-mdx-remote/serialize";
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
+import { Document, BLOCKS, INLINES } from "@contentful/rich-text-types";
 import Posts from "../components/Home/Posts";
 
-export default function Home({ intro }) {
-  const { data } = useQuery<PageHomeQueryQuery>(QUERY_PAGE_HOME);
+interface HomeProps {
+  initialApolloState: any;
+}
 
-  const {
-    data: liveData,
-    startPolling,
-    stopPolling,
-    refetch,
-    loading,
-  } = useQuery<SpotifyStatusQueryQuery>(QUERY_SPOTIFY_STATUS, {
-    ssr: false,
-    fetchPolicy: "network-only",
-  });
+interface PageHomeQuery {
+  siteSettingsCollection: {
+    items: Array<{
+      siteTitle: string;
+      metaDescription: string;
+      introNew: {
+        json: Document;
+      };
+      avatar: {
+        url: string;
+        width: number;
+        height: number;
+      };
+    }>;
+  };
+  postCollection: {
+    items: Array<{
+      title: string;
+      slug: string;
+      publishedDate: string;
+      metaDescription: string;
+    }>;
+  };
+}
 
-  // Refetch every 15 seconds for live data to be fresh.
-  useEffect(() => {
-    refetch();
-    startPolling(15 * 1000);
+export default function Home({ initialApolloState }: HomeProps) {
+  const { data } = useQuery<PageHomeQuery>(QUERY_PAGE_HOME);
+  const settings = data?.siteSettingsCollection?.items?.[0];
 
-    return () => stopPolling();
-  }, []);
+  const options = {
+    renderNode: {
+      [INLINES.HYPERLINK]: (node: any, children: any) => (
+        <a href={node.data.uri} className="link">
+          {children}
+        </a>
+      ),
+    },
+  };
+
+  if (!settings) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <>
+    <Main>
       <SEO
         seo={{
-          title: data.siteSettings.siteTitle,
-          description: data.siteSettings.metaDescription,
-          path: "/",
+          title: settings.siteTitle,
+          description: settings.metaDescription,
+          path: "/"
         }}
       />
-      <Main>
-        <Intro content={intro} />
+      <div className="space-y-16 sm:space-y-20">
+        <dl className="list-container">
+          <dt className="list-title">
+            <div className="space-y-1">
+              <div className="text-base font-bold">{settings.siteTitle}</div>
+              <div className="text-neutral-500">Human</div>
+            </div>
+          </dt>
+          <dd className="list-content">
+            <div className="text-base text-neutral-800 dark:text-silver">
+              {documentToReactComponents(settings.introNew.json, options)}
+            </div>
+          </dd>
+        </dl>
         <Resume />
-        <Posts postCollection={data.postCollection} />
-        <NowPlaying spotifyStatus={liveData?.spotifyStatus} loading={loading} />
-        <NowReading books={data.books} />
-      </Main>
-    </>
+        <Posts />
+      </div>
+    </Main>
   );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const apolloClient = initializeApollo();
+  try {
+    const apolloClient = initializeApollo();
 
-  await apolloClient.query({
-    query: QUERY_PAGE_HOME,
-  });
+    const [homeData] = await Promise.all([
+      apolloClient.query<PageHomeQuery>({
+        query: QUERY_PAGE_HOME,
+      }),
+      apolloClient.query({
+        query: QUERY_RESUME,
+      })
+    ]);
 
-  const cache = apolloClient.cache.extract();
+    console.log("Raw query result:", JSON.stringify(homeData.data, null, 2));
 
-  const data = apolloClient.readQuery({ query: QUERY_PAGE_HOME });
-  console.log("Data from Apollo:", JSON.stringify(data, null, 2));
-  console.log("Site settings:", JSON.stringify(data?.siteSettings, null, 2));
+    if (!homeData.data || !homeData.data.siteSettingsCollection?.items?.[0]) {
+      console.error("Settings not found in the response");
+      return {
+        notFound: true
+      };
+    }
 
-  // Convert Contentful rich text to markdown
-  const richTextContent = data.siteSettings.introNew.json;
-  const markdownContent = richTextContent.content
-    .map(node => {
-      if (node.nodeType === 'paragraph') {
-        const text = node.content.map(content => {
-          if (content.nodeType === 'text') {
-            return content.value;
-          } else if (content.nodeType === 'hyperlink') {
-            return `[${content.content[0].value}](${content.data.uri})`;
-          }
-          return '';
-        }).join('');
-        return text;
-      }
-      return '';
-    })
-    .filter(text => text)
-    .join('\n\n');
-
-  const intro = await serialize(markdownContent);
-  console.log("Serialized intro:", JSON.stringify(intro, null, 2));
-
-  return {
-    props: {
-      initialApolloState: { ...cache },
-      intro,
-    },
-  };
+    return {
+      props: {
+        initialApolloState: apolloClient.cache.extract(),
+      },
+      revalidate: 60, // Revalidate every minute
+    };
+  } catch (error) {
+    console.error("Error in getStaticProps:", error);
+    return {
+      notFound: true
+    };
+  }
 };

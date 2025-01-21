@@ -32,7 +32,7 @@ export default function Colophon() {
               <a className="link" target="_blank" href="https://rsms.me">
                 Rasmus Andersson
               </a>
-              . I like the typeface.
+              .
             </p>
           </dd>
         </dl>

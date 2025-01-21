@@ -7,18 +7,38 @@ import { initializeApollo } from "../../graphql/client";
 import { QUERY_POSTS } from "../../graphql/queries";
 import { formatDate } from "../../lib/formatDate";
 
-export default function Posts({ posts }) {
+interface Post {
+  slug: string;
+  title: string;
+  publishedDate: string;
+  metaDescription?: string;
+}
+
+interface PostsProps {
+  posts: Post[];
+  settings: {
+    siteTitle: string;
+    metaDescription: string;
+  };
+}
+
+export default function Posts({ posts, settings }: PostsProps) {
+  const sortedPosts = [...posts].sort((a, b) => {
+    return new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime();
+  });
+
   return (
     <>
       <SEO
         seo={{
           title: "Posts",
+          description: settings.metaDescription,
           path: "/posts",
         }}
       />
       <Main>
         <dl className="list-container items-center gap-2">
-          {posts.map(({ slug, title, publishedDate }) => (
+          {sortedPosts.map(({ slug, title, publishedDate }) => (
             <React.Fragment key={slug}>
               <dt className="list-title border-none pt-0">
                 <time className="time time-lg" dateTime={publishedDate}>
@@ -40,20 +60,34 @@ export default function Posts({ posts }) {
   );
 }
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const apolloClient = initializeApollo();
+export const getStaticProps: GetStaticProps<PostsProps> = async () => {
+  try {
+    const client = initializeApollo();
+    const { data } = await client.query({
+      query: QUERY_POSTS,
+    });
 
-  await apolloClient.query({
-    query: QUERY_POSTS,
-  });
+    if (!data?.postCollection?.items || !data?.siteSettingsCollection?.items?.[0]) {
+      return {
+        notFound: true,
+      };
+    }
 
-  const data = apolloClient.readQuery({
-    query: QUERY_POSTS,
-  });
+    const posts = [...data.postCollection.items].sort((a, b) => {
+      return new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime();
+    });
 
-  return {
-    props: {
-      posts: data.posts,
-    },
-  };
+    return {
+      props: {
+        posts,
+        settings: data.siteSettingsCollection.items[0],
+      },
+      revalidate: 60,
+    };
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return {
+      notFound: true,
+    };
+  }
 };

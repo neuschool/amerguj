@@ -1,36 +1,48 @@
-import type { GetStaticProps, GetStaticPaths } from "next";
+import type { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from "next";
+import { serialize } from "next-mdx-remote/serialize";
+import { MDXRemote } from "next-mdx-remote";
 import { Main } from "../../components/Layouts";
 import { baseUrl, SEO } from "../../components/SEO";
 import { initializeApollo } from "../../graphql/client";
 import { QUERY_POST, QUERY_POST_SLUGS } from "../../graphql/queries";
+import { formatDate } from "../../lib/formatDate";
+import type { Post, SiteSettings } from "../../graphql/types/types.generated";
 import { useRouter } from "next/router";
 import React from "react";
-import Image from "next/image";
-import Badge from "../../components/Badge";
 import { LinkShare } from "../../components/Links";
 import Link from "next/link";
-import { serialize } from "next-mdx-remote/serialize";
-import { MDXRemote } from "next-mdx-remote";
 import { mdxComponents } from "../../components/Prose";
-import formatDate from "../../lib/formatDate";
-import { Post, SiteSettings } from "../../graphql/types/types.generated";
 import contentfulLoader from "../../lib/contentfulLoader";
+import Image from "next/image";
+import Badge from "../../components/Badge";
+import { getClient } from "../../lib/apollo-client";
+import { documentToReactComponents } from '@contentful/rich-text-react-renderer';
+import { BLOCKS, MARKS } from '@contentful/rich-text-types';
 
 interface PostProps {
   post: Post;
   siteSettings: SiteSettings;
+  body: any;
 }
 
 export default function Post(props: PostProps) {
   const router = useRouter();
   const slug = router.query.slug;
 
-  const { title, metaDescription, publishedDate, coverUrl, coverAlt } =
-    props.post || {};
-  const relativeUrl = `/posts/${slug}`;
-  const url = `${baseUrl}${relativeUrl}`;
+  console.log('Post props:', {
+    title: props.post?.title,
+    hasBody: !!props.post?.body,
+    bodyJson: props.post?.body?.json
+  });
 
-  if (!props.post.title) {
+  console.log('Post body:', {
+    hasJson: !!props.post?.body?.json,
+    jsonContent: JSON.stringify(props.post?.body?.json, null, 2),
+    nodeType: props.post?.body?.json?.nodeType,
+    content: props.post?.body?.json?.content
+  });
+
+  if (!props.post) {
     return (
       <>
         <SEO
@@ -45,6 +57,29 @@ export default function Post(props: PostProps) {
     );
   }
 
+  const { title, metaDescription, publishedDate } = props.post;
+  const relativeUrl = `/posts/${slug}`;
+  const url = `${baseUrl}${relativeUrl}`;
+
+  const options = {
+    renderNode: {
+      [BLOCKS.PARAGRAPH]: (node: any, children: any) => <p className="mb-4">{children}</p>,
+      [BLOCKS.HEADING_1]: (node: any, children: any) => <h1 className="text-3xl font-bold mb-4">{children}</h1>,
+      [BLOCKS.HEADING_2]: (node: any, children: any) => <h2 className="text-2xl font-bold mb-3">{children}</h2>,
+      [BLOCKS.HEADING_3]: (node: any, children: any) => <h3 className="text-xl font-bold mb-2">{children}</h3>,
+      [BLOCKS.UL_LIST]: (node: any, children: any) => <ul className="list-disc pl-6 mb-4">{children}</ul>,
+      [BLOCKS.OL_LIST]: (node: any, children: any) => <ol className="list-decimal pl-6 mb-4">{children}</ol>,
+      [BLOCKS.LIST_ITEM]: (node: any, children: any) => <li className="mb-2">{children}</li>,
+      [BLOCKS.QUOTE]: (node: any, children: any) => <blockquote className="border-l-4 border-gray-300 pl-4 mb-4 italic">{children}</blockquote>,
+    },
+    renderMark: {
+      [MARKS.BOLD]: (text: any) => <strong>{text}</strong>,
+      [MARKS.ITALIC]: (text: any) => <em>{text}</em>,
+      [MARKS.CODE]: (text: any) => <code className="bg-gray-100 rounded px-1">{text}</code>,
+      [MARKS.UNDERLINE]: (text: any) => <u>{text}</u>,
+    },
+  };
+
   return (
     <>
       <SEO
@@ -52,13 +87,6 @@ export default function Post(props: PostProps) {
           title,
           description: metaDescription,
           path: relativeUrl,
-          image: `${baseUrl}/api/og?title=${encodeURIComponent(title)}${
-            coverUrl
-              ? `&bg=${encodeURI(
-                  new URL(coverUrl).pathname.split("/").slice(2).join("/"),
-                )}`
-              : ""
-          }`,
         }}
       />
       <Main>
@@ -72,16 +100,18 @@ export default function Post(props: PostProps) {
                 href="/"
                 className="flex flex-row items-center gap-2 [font-variation-settings:'wght'_450]"
               >
-                <div>
-                  <Image
-                    alt={props.siteSettings.siteTitle}
-                    title={props.siteSettings.siteTitle}
-                    className="rounded-full bg-gray-200 dark:bg-neutral-600"
-                    src={props.siteSettings.avatar.url || ""}
-                    width={20}
-                    height={20}
-                  />
-                </div>
+                {props.siteSettings.avatar?.url && (
+                  <div>
+                    <Image
+                      alt={props.siteSettings.siteTitle}
+                      title={props.siteSettings.siteTitle}
+                      className="rounded-full bg-gray-200 dark:bg-neutral-600"
+                      src={props.siteSettings.avatar.url}
+                      width={20}
+                      height={20}
+                    />
+                  </div>
+                )}
               </Link>
               <time dateTime={publishedDate}>
                 <Badge>{formatDate(publishedDate)}</Badge>
@@ -94,23 +124,20 @@ export default function Post(props: PostProps) {
         </header>
 
         <div className="rounded-lg p-0 sm:bg-gray-100 sm:p-20 sm:dark:bg-white/[.06]">
-          {coverUrl ? (
-            <Image
-              height={400}
-              width={700}
-              alt={coverAlt || `Cover image for post: ${title}`}
-              src={coverUrl}
-              loader={(props) =>
-                contentfulLoader({
-                  ...props,
-                  custom: ["fit=crop", "f=center"],
-                })
-              }
-              className="bg-gray-200 dark:bg-zinc-900 dark:opacity-100 rounded-lg sm:rounded-t-lg sm:rounded-b-none object-cover mb-4 sm:mb-14 h-40 sm:h-80 sm:-ml-20 sm:-mt-20 w-full sm:w-[calc(100%+5rem*2)] max-w-none"
-            />
-          ) : null}
           <div className="prose-custom prose-quotefix">
-            <MDXRemote {...props.post.body} components={mdxComponents} />
+            {props.post.body?.json ? (
+              <div className="mt-8">
+                {documentToReactComponents(props.post.body.json, {
+                  renderNode: {
+                    [BLOCKS.PARAGRAPH]: (node, children) => (
+                      <p className="mb-4">{children}</p>
+                    ),
+                  },
+                })}
+              </div>
+            ) : (
+              <p>No content available</p>
+            )}
           </div>
         </div>
       </Main>
@@ -119,52 +146,48 @@ export default function Post(props: PostProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const apolloClient = initializeApollo();
-
-  await apolloClient.query({
+  const client = getClient();
+  const { data } = await client.query({
     query: QUERY_POST_SLUGS,
   });
 
-  const data = apolloClient.readQuery({
-    query: QUERY_POST_SLUGS,
-  });
-
-  const posts = data.posts.map((post) => ({ params: { ...post } }));
+  if (!data || !data.postCollection || !data.postCollection.items) {
+    return {
+      paths: [],
+      fallback: true,
+    };
+  }
 
   return {
-    paths: posts,
-    fallback: false, // can also be true or 'blocking'
+    paths: data.postCollection.items.map((post) => ({ params: { slug: post.slug } })),
+    fallback: true,
   };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const apolloClient = initializeApollo();
-  const remarkTypograf = require("@mavrin/remark-typograf");
-
-  await apolloClient.query({
+  const client = getClient();
+  const { data } = await client.query({
     query: QUERY_POST,
-    variables: {
-      slug: params.slug,
-    },
+    variables: { slug: params?.slug },
   });
 
-  const data = apolloClient.readQuery({
-    query: QUERY_POST,
-    variables: {
-      slug: params.slug,
-    },
-  });
+  const post = data.postCollection.items[0];
+  const siteSettings = data.siteSettingsCollection.items[0];
+  
+  if (!post) {
+    return {
+      notFound: true,
+    };
+  }
 
-  const body = await serialize(data.post.body, {
-    mdxOptions: {
-      remarkPlugins: [[remarkTypograf, { locale: ["en-US"] }]],
-    },
-  });
+  console.log('Post body:', JSON.stringify(post.body, null, 2));
 
   return {
     props: {
-      siteSettings: data.siteSettings,
-      post: { ...data.post, body },
+      post,
+      siteSettings,
+      body: post.body
     },
+    revalidate: 60,
   };
 };

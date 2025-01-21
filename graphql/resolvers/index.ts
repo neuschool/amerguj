@@ -16,7 +16,38 @@ export const resolvers = {
   Query: {
     books: () => [],
     photo: () => null,
-    photos: () => [],
+    photoCollection: async () => {
+      try {
+        const { data } = await contentfulClient.query({
+          query: gql`
+            query GetPhotos {
+              photoCollection {
+                items {
+                  sys {
+                    id
+                  }
+                  location
+                  image {
+                    sys {
+                      id
+                    }
+                    url
+                    width
+                    height
+                    title
+                    description
+                  }
+                }
+              }
+            }
+          `,
+        });
+        return data.photoCollection;
+      } catch (error) {
+        console.error("Error fetching photos:", error);
+        return { items: [] };
+      }
+    },
     playlists: () => [],
     postCollection: async () => {
       try {
@@ -34,7 +65,10 @@ export const resolvers = {
             }
           `,
         });
-        return data.postCollection;
+        const items = [...data.postCollection.items].sort((a, b) => {
+          return new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime();
+        });
+        return { items };
       } catch (error) {
         console.error("Error fetching posts:", error);
         return { items: [] };

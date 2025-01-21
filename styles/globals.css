@@ -19,6 +19,23 @@ body {
   font-variation-settings: "opsz" 15;
 }
 
+.link {
+  @apply text-neutral-800 dark:text-silver;
+  @apply underline decoration-neutral-300 dark:decoration-neutral-600;
+  @apply decoration-1.5 underline-offset-2.5;
+  @apply hover:decoration-neutral-400 dark:hover:decoration-neutral-500;
+  @apply transition-[text-decoration-color] duration-150;
+}
+
+.link-external {
+  @apply inline-flex items-center gap-1;
+}
+
+.link-external svg {
+  @apply text-neutral-400 dark:text-silver-dark;
+  @apply decoration-transparent;
+}
+
 p {
   @apply mb-6;
   @apply last-of-type:mb-0;
@@ -273,18 +290,6 @@ blockquote span::after {
     @apply dark:border-t-0 dark:border-b dark:border-x-0;
   }
 
-  .link {
-    @apply !underline;
-    @apply !decoration-1.5;
-    @apply !underline-offset-2.5;
-    @apply !decoration-neutral-300 dark:!decoration-neutral-700;
-    @apply hover:!decoration-neutral-400 dark:hover:!decoration-neutral-600;
-    @apply motion-safe:transition;
-    @apply duration-150;
-    @apply ease-out-expo;
-    text-decoration-skip-ink: all;
-  }
-
   .note {
     @apply text-base;
     @apply leading-relaxed;
@@ -328,7 +333,7 @@ blockquote span::after {
   }
 
   .list-container {
-    @apply mb-12 grid grid-cols-12 gap-8 gap-y-2 sm:mb-16 sm:gap-y-4;
+    @apply mb-8 grid grid-cols-12 gap-8 gap-y-2 sm:mb-12 sm:gap-y-4;
   }
 
   .list-container:last-of-type {
@@ -336,11 +341,21 @@ blockquote span::after {
   }
 
   .list-title {
-    @apply col-span-12 border-t border-solid border-neutral-500/10 pt-4 dark:border-neutral-900 sm:col-span-4;
+    @apply col-span-12 pt-2 sm:col-span-4;
+    @apply space-y-[2.75rem];
   }
 
   .list-content {
-    @apply col-span-12 border-solid border-neutral-500/10 pt-4 dark:border-neutral-900 sm:col-span-8 sm:border-t;
+    @apply col-span-12 pt-2 sm:col-span-8;
+    @apply space-y-[2.75rem];
+  }
+
+  .section-border .list-title {
+    @apply block sm:block sm:border-t border-solid border-neutral-500/10 dark:border-neutral-900;
+  }
+
+  .section-border .list-content {
+    @apply border-t border-solid border-neutral-500/10 dark:border-neutral-900;
   }
 
   .island {
@@ -355,27 +370,34 @@ blockquote span::after {
   }
 
   .prose-custom {
-    @apply prose-a:link;
+    @apply prose-a:text-neutral-800 prose-a:dark:text-silver;
+    @apply prose-a:underline prose-a:decoration-neutral-300 prose-a:dark:decoration-neutral-600;
+    @apply prose-a:decoration-1.5 prose-a:underline-offset-2.5;
+    @apply prose-a:hover:decoration-neutral-400 prose-a:dark:hover:decoration-neutral-500;
+    @apply prose-a:transition-[text-decoration-color] prose-a:duration-150;
     @apply prose-a:[font-variation-settings:'opsz'_15,_'wght'_450];
     @apply prose-p:first:mt-0;
-    @apply prose-p:leading-relaxed sm:prose-p:leading-golden;
-    @apply prose prose-neutral dark:prose-invert;
-    @apply prose-p:text-neutral-800 dark:prose-p:text-silver;
-    @apply prose-headings:font-normal prose-headings:[font-variation-settings:'wght'_500];
-    @apply prose-strong:font-normal prose-strong:[font-variation-settings:'wght'_500];
-    @apply prose-em:not-italic prose-em:underline prose-em:decoration-neutral-300 prose-em:decoration-wavy dark:prose-em:decoration-neutral-700;
-    @apply prose-code:rounded prose-code:font-normal prose-code:text-neutral-800 dark:prose-code:text-silver-dark;
-    @apply prose-pre:overflow-auto prose-pre:whitespace-pre prose-pre:border prose-pre:border-neutral-200 prose-pre:bg-transparent prose-pre:p-4 prose-pre:text-sm dark:prose-pre:border-neutral-900 sm:prose-pre:-ml-4 sm:prose-pre:-mr-4;
-    @apply prose-img:rounded-lg;
-    @apply prose-hr:my-6 prose-hr:h-[2px] prose-hr:border-none prose-hr:bg-neutral-200 dark:prose-hr:bg-neutral-900 sm:prose-hr:my-10;
-    @apply prose-blockquote:border-0 prose-blockquote:p-0 prose-blockquote:not-italic prose-blockquote:text-neutral-600 dark:prose-blockquote:text-silver-dark;
+    @apply prose-headings:font-sans;
+    @apply prose-headings:font-medium;
+    @apply prose-headings:tracking-tighter;
+    @apply prose-h1:text-4xl;
+    @apply prose-h2:text-2xl;
+    @apply prose-h3:text-xl;
+    @apply prose-hr:border-neutral-200;
+    @apply prose-hr:dark:border-neutral-800;
+    @apply prose-img:rounded-2xl;
+    @apply prose-img:border;
+    @apply prose-img:border-neutral-200;
+    @apply prose-img:dark:border-neutral-800;
+    @apply prose-strong:font-medium;
+    @apply prose-strong:[font-variation-settings:'opsz'_14];
   }
 }
 
 @layer utilities {
   .material-glass {
     @apply bg-white/75;
-    @apply dark:bg-neutral-800/75;
+    @apply dark:bg-neutral-800/60;
     @apply shadow-fancy dark:shadow-fancyDark;
     @apply backdrop-blur-xl backdrop-saturate-200;
   }
@@ -395,11 +417,6 @@ blockquote span::after {
     @apply text-sm;
     @apply px-2 py-1.5;
     @apply rounded-lg bg-gray-200 text-neutral-700 transition-colors [font-variation-settings:'opsz'_14,'wght'_400] hover:bg-gray-300 dark:bg-neutral-900 dark:text-silver-dark dark:hover:bg-neutral-800;
-  }
-
-  .link-external svg {
-    @apply decoration-transparent;
-    @apply text-neutral-400 dark:text-silver-dark;
   }
 
   .link-back:hover svg {

@@ -7,7 +7,7 @@ import {
   InMemoryCache,
   NormalizedCacheObject,
 } from "@apollo/client";
-import { GRAPHQL_BASE_URL } from "./constants";
+
 let apolloClient: ApolloClient<NormalizedCacheObject> | undefined;
 
 export type ResolverContext = {
@@ -15,44 +15,47 @@ export type ResolverContext = {
   res?: ServerResponse;
 };
 
-function createIsomorphLink(context: ResolverContext = {}) {
-  if (typeof window === "undefined") {
-    const { SchemaLink } = require("@apollo/client/link/schema");
-    const { schema } = require("./schema");
+function createIsomorphLink() {
+  const spaceId = process.env.CONTENTFUL_SPACE_ID || process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID;
+  const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN || process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN;
 
-    console.log(`🌐 Using schema link on server.`);
-    return new SchemaLink({ schema, context });
+  if (!spaceId || !accessToken) {
+    throw new Error('Contentful environment variables are not set');
   }
 
   return new HttpLink({
-    uri: GRAPHQL_BASE_URL,
-    credentials: "same-origin",
+    uri: `https://graphql.contentful.com/content/v1/spaces/${spaceId}`,
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+    },
   });
 }
 
-function createApolloClient(context?: ResolverContext) {
+function createApolloClient() {
   return new ApolloClient({
     ssrMode: typeof window === "undefined",
-    link: createIsomorphLink(context),
+    link: createIsomorphLink(),
     cache: new InMemoryCache(),
   });
 }
 
-export function initializeApollo(
-  initialState: any = null,
-  // Pages with Next.js data fetching methods, like `getStaticProps`, can send
-  // a custom context which will be used by `SchemaLink` to server render pages
-  context?: ResolverContext
-) {
-  const _apolloClient = apolloClient ?? createApolloClient(context);
+export function initializeApollo(initialState: any = null) {
+  const _apolloClient = apolloClient ?? createApolloClient();
 
   // If your page has Next.js data fetching methods that use Apollo Client, the initial state
-  // get hydrated here
+  // gets hydrated here
   if (initialState) {
-    _apolloClient.cache.restore(initialState);
+    // Get existing cache, loaded during client side data fetching
+    const existingCache = _apolloClient.extract();
+
+    // Restore the cache using the data passed from
+    // getStaticProps/getServerSideProps combined with the existing cached data
+    _apolloClient.cache.restore({ ...existingCache, ...initialState });
   }
+
   // For SSG and SSR always create a new Apollo Client
   if (typeof window === "undefined") return _apolloClient;
+
   // Create the Apollo Client once in the client
   if (!apolloClient) apolloClient = _apolloClient;
 

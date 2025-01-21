@@ -7,41 +7,42 @@ export const SHARED_FRAGMENTS = gql`
   }
 `;
 
-export const QUERY_PAGE_HOME = gql`
-  ${SHARED_FRAGMENTS}
-  query PageHomeQuery {
-    siteSettings {
-      introNew {
-        json
-        links {
-          assets {
-            block {
-              sys {
-                id
-              }
-              url
-              title
-              width
-              height
-              description
-            }
-          }
-        }
-      }
-      ...SiteSettingsShared
-    }
-    postCollection(limit: 5, order: "publishedDate_DESC") {
+export const QUERY_RESUME = gql`
+  query GetResumeEntries {
+    resumeEntryCollection(order: [priority_DESC]) {
       items {
-        title
-        slug
+        sys {
+          id
+        }
+        startYear
+        endYear
+        jobTitle
+        companyName
+        companyUrl
+        location
+        priority
       }
     }
   }
 `;
 
-export const QUERY_POSTS = gql`
-  query PostsQuery {
-    postCollection {
+export const QUERY_PAGE_HOME = gql`
+  query PageHomeQuery {
+    siteSettingsCollection(limit: 1) {
+      items {
+        siteTitle
+        metaDescription
+        introNew {
+          json
+        }
+        avatar {
+          url
+          width
+          height
+        }
+      }
+    }
+    postCollection(limit: 5) {
       items {
         title
         slug
@@ -53,23 +54,64 @@ export const QUERY_POSTS = gql`
 `;
 
 export const QUERY_POST = gql`
-  query PostQuery($slug: String!) {
+  query Post($slug: String!) {
+    siteSettingsCollection(limit: 1) {
+      items {
+        siteTitle
+        metaDescription
+        avatar {
+          url
+          width
+          height
+        }
+      }
+    }
     postCollection(where: { slug: $slug }, limit: 1) {
       items {
         title
         slug
         publishedDate
         metaDescription
-        body
-        coverUrl
-        coverAlt
+        tags
+        body {
+          json
+          links {
+            entries {
+              inline {
+                sys {
+                  id
+                }
+                __typename
+              }
+              block {
+                sys {
+                  id
+                }
+                __typename
+              }
+            }
+            assets {
+              block {
+                sys {
+                  id
+                }
+                title
+                description
+                url
+                width
+                height
+                contentType
+              }
+            }
+          }
+        }
       }
     }
   }
 `;
 
 export const QUERY_POST_SLUGS = gql`
-  query PostSlugsQuery {
+  query PostSlugs {
     postCollection {
       items {
         slug
@@ -78,17 +120,61 @@ export const QUERY_POST_SLUGS = gql`
   }
 `;
 
-export const QUERY_SPOTIFY_STATUS = gql`
-  query SpotifyStatusQuery {
-    spotifyStatus {
-      timestamp
-      isPlaying
-      song {
-        albumImageUrl
-        name
-        artist
-        url
+export const QUERY_POSTS = gql`
+  query Posts {
+    siteSettingsCollection(limit: 1) {
+      items {
+        siteTitle
+        metaDescription
+      }
+    }
+    postCollection {
+      items {
+        title
+        slug
+        publishedDate
+        metaDescription
       }
     }
   }
 `;
+
+export const QUERY_SPOTIFY_STATUS = gql`
+  query SpotifyStatus {
+    spotifyStatus {
+      isPlaying
+      song {
+        title
+        artist
+        album
+        albumImageUrl
+        spotifyUrl
+      }
+      timestamp
+    }
+  }
+`;
+
+export const QUERY_ALL_PHOTOS = gql`
+  query Photos {
+    photoCollection {
+      items {
+        sys {
+          id
+        }
+        location
+        image {
+          sys {
+            id
+          }
+          title
+          description
+          url
+          width
+          height
+        }
+      }
+    }
+  }
+`;
+

@@ -95,14 +95,22 @@ export type Location = {
 
 export type Photo = {
   __typename?: 'Photo';
-  description?: Maybe<Scalars['String']>;
-  exif?: Maybe<Scalars['JSON']>;
-  height: Scalars['Int'];
-  id: Scalars['String'];
-  location?: Maybe<Location>;
-  tags?: Maybe<Array<Maybe<Scalars['String']>>>;
-  url: Scalars['String'];
-  width: Scalars['Int'];
+  sys: {
+    id: string;
+  };
+  location?: Maybe<Scalars['String']>;
+  image: {
+    sys: {
+      id: string;
+    };
+    title?: Maybe<string>;
+    description?: Maybe<string>;
+    size?: Maybe<number>;
+    url: string;
+    width: number;
+    height: number;
+    contentType?: Maybe<string>;
+  };
 };
 
 export type Place = {

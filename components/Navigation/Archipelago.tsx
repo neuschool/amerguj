@@ -136,11 +136,11 @@ export default function Archipelago() {
       <nav
         className={`${
           isHome ? "w-12" : "w-28"
-        } fixed bottom-6 left-6 top-auto z-10 md:bottom-auto md:left-8 md:top-8`}
+        } fixed bottom-6 left-6 top-auto z-50 md:bottom-auto md:left-8 md:top-8`}
       >
         <div>
           <CSSTransitionGroup
-            className="relative flex h-12 gap-2"
+            className="relative flex h-12 gap-3"
             transitionName="island"
             transitionEnterTimeout={500}
             transitionLeaveTimeout={300}
@@ -160,7 +160,7 @@ export default function Archipelago() {
             ) : null}
             <div
               className={`duration-250 absolute rounded-full transition-all ease-out-expo ${
-                !isHome ? "delay-50 left-14" : "left-0 delay-300"
+                !isHome ? "delay-50 left-16" : "left-0 delay-300"
               }`}
               onMouseEnter={() => setTooltip(TooltipState.MENU)}
               onMouseLeave={() => setTooltip(undefined)}
