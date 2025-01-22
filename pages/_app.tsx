@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { SessionProvider } from 'next-auth/react';
 import Head from 'next/head';
+import { Analytics } from '@vercel/analytics/react';
 
 const Archipelago = dynamic(
   () => import("../components/Navigation/Archipelago"),
@@ -32,6 +33,7 @@ export default function MyApp({ Component, pageProps }: CustomAppProps) {
         <main>
           <Component {...pageProps} />
           <Archipelago />
+          <Analytics />
         </main>
       </ApolloProvider>
     </SessionProvider>
