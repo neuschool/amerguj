@@ -90,11 +90,7 @@ export default function Colophon() {
               .
             </p>
             <p>
-              The interactive globe runs on{" "}
-              <a className="link" target="_blank" href="https://mapbox.com">
-                Mapbox
-              </a>
-              . The ⌘K functionality is powered by the great{" "}
+              The ⌘K functionality is powered by the great{" "}
               <a className="link" target="_blank" href="https://cmdk.paco.me">
                 cmdk
               </a>{" "}
@@ -109,20 +105,32 @@ export default function Colophon() {
         <dl className="list-container">
           <dt className="list-title">
             <h3 className="text-neutral-500 dark:text-silver-dark">
-              Open Source
+              Source
             </h3>
           </dt>
           <dd className="list-content">
             <p>
-              This site is open source and available on{" "}
-              <a
-                className="link"
-                target="_blank"
-                href="https://github.com/fabe/site"
-              >
-                GitHub
+              This website's code is forked from{" "}
+              <a className="link" target="_blank" href="https://www.fabianschultz.com/">
+                Fabian Schultz
               </a>
-              .
+              , which is open source and available on{" "}
+              <a className="link" target="_blank" href="https://github.com/fabe/site">
+                Github
+              </a>
+              . I found this repository through{" "}
+              <a className="link" target="_blank" href="https://hem.so/">
+                Hemanth Soni's
+              </a>
+              {" "}website. I am not a software engineer so I also need to thank{" "}
+              <a className="link" target="_blank" href="https://www.cursor.com/">
+                Cursor
+              </a>
+              {" "}and{" "}
+              <a className="link" target="_blank" href="https://claude.ai/new">
+                Claude
+              </a>
+              {" "}to get this website up and running.
             </p>
           </dd>
         </dl>
