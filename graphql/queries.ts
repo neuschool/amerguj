@@ -121,14 +121,14 @@ export const QUERY_POST_SLUGS = gql`
 `;
 
 export const QUERY_POSTS = gql`
-  query Posts {
+  query GetPosts {
     siteSettingsCollection(limit: 1) {
       items {
         siteTitle
         metaDescription
       }
     }
-    postCollection {
+    postCollection(order: [publishedDate_DESC]) {
       items {
         title
         slug
@@ -147,7 +147,7 @@ export const QUERY_POSTS_FEED = gql`
         metaDescription
       }
     }
-    postCollection(limit: 5) {
+    postCollection(limit: 5, order: [publishedDate_DESC]) {
       items {
         title
         slug

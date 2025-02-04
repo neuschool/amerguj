@@ -25,6 +25,23 @@ interface PostProps {
   body: any;
 }
 
+const calculateReadingTime = (content: any): string => {
+  // Extract all text content from the JSON structure
+  const getText = (node: any): string => {
+    if (!node) return '';
+    if (typeof node === 'string') return node;
+    if (node.content) return node.content.map(getText).join(' ');
+    if (node.value) return node.value;
+    return '';
+  };
+
+  const text = getText(content);
+  const words = text.trim().split(/\s+/).length;
+  const wordsPerMinute = 200;
+  const minutes = Math.ceil(words / wordsPerMinute);
+  return `${minutes} min read`;
+};
+
 export default function Post(props: PostProps) {
   const router = useRouter();
   const slug = router.query.slug;
@@ -60,6 +77,7 @@ export default function Post(props: PostProps) {
   const { title, metaDescription, publishedDate } = props.post;
   const relativeUrl = `/posts/${slug}`;
   const url = `${baseUrl}${relativeUrl}`;
+  const readingTime = calculateReadingTime(props.post.body?.json);
 
   const options = {
     renderNode: {
@@ -116,6 +134,7 @@ export default function Post(props: PostProps) {
               <time dateTime={publishedDate}>
                 <Badge>{formatDate(publishedDate)}</Badge>
               </time>
+              <Badge>{readingTime}</Badge>
             </div>
             <LinkShare title={title} url={url}>
               Share
@@ -123,10 +142,10 @@ export default function Post(props: PostProps) {
           </div>
         </header>
 
-        <div className="rounded-lg p-0 sm:bg-gray-100 sm:p-20 sm:dark:bg-white/[.06]">
-          <div className="prose-custom prose-quotefix">
+        <div className="rounded-lg p-0 sm:bg-gray-100 sm:p-8 sm:dark:bg-white/[.06]">
+          <div className="prose-custom prose-quotefix text-justify">
             {props.post.body?.json ? (
-              <div className="mt-8">
+              <div className="mt-4">
                 {documentToReactComponents(props.post.body.json, {
                   renderNode: {
                     [BLOCKS.PARAGRAPH]: (node, children) => (
